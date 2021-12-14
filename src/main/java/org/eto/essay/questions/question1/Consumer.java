@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @author shanhm1991@163.com
  *
  */
-public class Producer extends Thread{
+public class Consumer extends Thread{
     
 	private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
     
@@ -18,22 +18,24 @@ public class Producer extends Thread{
     
     private TaskList<Task> taskList;
     
-    public Producer(TaskList<Task> taskList){
-        this.setName("producer-" + index.incrementAndGet()); 
+    public Consumer(TaskList<Task> taskList){
+        this.setName("consumer-" + index.incrementAndGet()); 
         this.taskList = taskList;
     }
     
     @Override
     public void run(){
         while(true){
-            Task task = new Task();
+            Task task;
             try {
-            	LOGGER.info("压入子弹" + task.getIndex()); 
-                taskList.offer(task);
+                task = taskList.take();
             } catch (InterruptedException e) {
-            	LOGGER.info("停止生产"); 
+            	LOGGER.info("停止消费"); 
                 return;
             }
+            LOGGER.info("射出子弹" + task.getIndex()); 
+            task.run();
         }
     }
 }
+

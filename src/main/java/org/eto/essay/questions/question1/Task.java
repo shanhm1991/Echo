@@ -2,18 +2,17 @@ package org.eto.essay.questions.question1;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
- * 任务对象：子弹
- * 
- * @author shanhm1991
+ * @author shanhm1991@163.com
  *
  */
 public class Task implements Runnable{
 	 
-    private static final Logger LOG = Logger.getLogger(Task.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
     
     private static AtomicInteger index = new AtomicInteger(0);
     
@@ -25,7 +24,7 @@ public class Task implements Runnable{
     
     @Override
     public void run() {
-        LOG.info("子弹" + currentIndex + "执行飞行"); 
+    	LOGGER.info("子弹[{}]执行飞行", currentIndex); 
     }
  
     public String getIndex(){

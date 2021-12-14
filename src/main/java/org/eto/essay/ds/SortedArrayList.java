@@ -176,13 +176,11 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 
 	@Override
 	public E set(int index, E element) {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void add(int index, E element) {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
@@ -295,7 +293,6 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
@@ -306,13 +303,11 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 
 	@Override
 	public ListIterator<E> listIterator() {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public ListIterator<E> listIterator(int index) {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
@@ -457,7 +452,6 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 		}
 
 		public E set(int index, E e) {
-			// TODO Auto-generated method stub
 			throw new UnsupportedOperationException();
 		}
 
@@ -473,7 +467,6 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 		}
 
 		public void add(int index, E e) {
-			// TODO Auto-generated method stub
 			throw new UnsupportedOperationException();
 		}
 
@@ -499,7 +492,6 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 		}
 
 		public boolean addAll(int index, Collection<? extends E> c) {
-			// TODO Auto-generated method stub
 			throw new UnsupportedOperationException();
 		}
 
@@ -619,7 +611,6 @@ public class SortedArrayList<E extends Comparable<? super E>> implements List<E>
 				}
 
 				public void set(E e) {
-					// TODO Auto-generated method stub
 					throw new UnsupportedOperationException();
 				}
 
