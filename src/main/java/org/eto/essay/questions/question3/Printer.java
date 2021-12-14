@@ -3,16 +3,17 @@ package org.eto.essay.questions.question3;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author shanhm1991
+ * @author shanhm1991@163.com
  *
  */
 public class Printer extends Thread{
 	 
-    private static final Logger LOG = Logger.getLogger(Printer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Printer.class);
  
     private static final int INDEX_MAX = 75;
     
@@ -26,7 +27,7 @@ public class Printer extends Thread{
     
     private Condition nextCondition;
  
-    public Printer(String name,Lock lock,Condition condition,Condition nextCondition,int count){
+    public Printer(String name, Lock lock, Condition condition, Condition nextCondition, int count){
         this.setName(name);
         this.count = count;
         this.lock = lock;
@@ -41,17 +42,17 @@ public class Printer extends Thread{
             try{
                 condition.await();
                 if(index >= INDEX_MAX){
-                    LOG.info("已达到最大值，停止计数"); 
-                    nextCondition.signal();//停止自己之前将下一个线程唤醒
+                	LOGGER.info("已达到最大值，停止计数"); 
+                    nextCondition.signal(); // 停止自己之前将下一个线程唤醒
                     return;
                 }
                 
-                for(int i = 0;i < count;i++){
-                    LOG.info(String.valueOf(++index));
+                for(int i = 0; i < count; i++){
+                	LOGGER.info("{}", ++index);
                 }
                 nextCondition.signal();
             } catch (InterruptedException e) {
-                //忽略
+                // ignore
             }finally{
                 lock.unlock();
             }
