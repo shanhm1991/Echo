@@ -213,10 +213,9 @@ public class Sorts {
 		if(low >= high){
 			return; 
 		}
-		
+
 		int partition = partition(array, low, high, comp);
-		LOGGER.debug(" partition={}", partition);
-		
+
 		recursion_partition(array, low, partition - 1, comp);
 		recursion_partition(array, partition + 1, high, comp);
 	}
@@ -237,6 +236,7 @@ public class Sorts {
 		if(low != j){
 			swap(array, low, j); // 将切分元素放入正确的位置 
 		}
+		LOGGER.debug(" paitition by {}[{}]", array[j], j);
 		return j;
 	}
 }
