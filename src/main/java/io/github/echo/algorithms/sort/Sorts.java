@@ -47,7 +47,7 @@ public class Sorts {
 
 		Object[] array = list.toArray();
 		switch(algorithm){
-		case ALGORITHM_SELECT: sort_bubble(array, comp); break;
+		case ALGORITHM_SELECT: sort_select(array, comp); break;
 		case ALGORITHM_INSERT_SWAP: sort_insert_swap(array, comp); break;
 		case ALGORITHM_INSERT_MOVE: sort_insert_move(array, comp); break;
 		case ALGORITHM_INSERT_XIER: sort_xier(array, comp); break;
@@ -64,8 +64,7 @@ public class Sorts {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static boolean comp(Object[] array, int a, int b, Comparator comp) {
-		LOGGER.debug(String.format("%60s %2s comp： %s<->%s([%s]<->[%s])", 
-				" ", ++times_compare, array[a], array[b], a, b)); 
+		LOGGER.debug(String.format("%60s %2s comp：%2s<>%2s ([%2s]<>[%2s])", " ", ++times_compare, array[a], array[b], a, b)); 
 		return (comp != null && comp.compare(array[a], array[b]) > 0)
 				|| (comp == null && ((Comparable)array[a]).compareTo(array[b]) > 0);
 	}
@@ -74,16 +73,14 @@ public class Sorts {
 		Object t = array[a];
 		array[a] = array[b];
 		array[b] = t;
-		LOGGER.debug(String.format("%2s swap： %s<->%s([%s]<->[%s]) -> %s", 
-				++times_swap, array[b], array[a], a, b, Arrays.toString(array))); 
+		LOGGER.debug(String.format("%2s swap： %2s<>%2s ([%2s]<>[%2s]) = %s", ++times_swap, array[b], array[a], a, b, Arrays.toString(array))); 
 	}
 
 	private static void move(Object[] array, int a, int b) {
 		Object t = array[b];
 		System.arraycopy(array, a, array, a + 1, b - a);
 		array[a] = t;
-		LOGGER.debug(String.format("%2s move： %s([%s]->[%s]) -> %s",
-				++times_swap, t, b, a, Arrays.toString(array)));
+		LOGGER.debug(String.format("%2s move： %s([%s]->[%s]) = %s", ++times_swap, t, b, a, Arrays.toString(array)));
 	}
 
 	/**
@@ -93,7 +90,7 @@ public class Sorts {
 	 * @param comp
 	 */
 	@SuppressWarnings("rawtypes")
-	private static void sort_bubble(Object[] array, Comparator comp) {
+	private static void sort_select(Object[] array, Comparator comp) {
 		for(int i = 0; i < array.length; i++){
 			for(int j = i + 1; j < array.length; j++){
 				if(comp(array, i, j, comp)){
@@ -111,7 +108,7 @@ public class Sorts {
 	@SuppressWarnings("rawtypes")
 	private static void sort_insert_swap(Object[] array, Comparator comp) {
 		for(int i = 1; i < array.length; i++){
-			for(int j = i; j > 0 && comp(array, j - 1, j, comp); j--){
+			for(int j = i; j > 0 && !comp(array, j, j - 1, comp); j--){
 				swap(array, j-1 ,j);
 			}
 		}
@@ -176,18 +173,17 @@ public class Sorts {
 		}
 
 		int mid = (low + high) / 2;
-		LOGGER.debug("recursion mid={}", mid); 
+		LOGGER.debug("mid={}", mid); 
 
 		recursion_mid(array, temp, low, mid, comp);
 		recursion_mid(array, temp, mid + 1, high, comp);
-
 		merge(array, temp, low, mid, high, comp);
 	}
 
 	@SuppressWarnings("rawtypes")
 	private static void merge(Object[] array, Object[] temp, int low, int mid, int high, Comparator comp) {
 		if(comp(array, mid + 1, mid, comp)){
-			LOGGER.debug("****** skip merge mid={} ******", mid); 
+			LOGGER.debug("mid={} merge skipped...", mid); 
 			return;
 		}
 
@@ -204,7 +200,7 @@ public class Sorts {
 				array[k] = temp[i++];
 			}
 		}
-		LOGGER.debug("merge mid={}, {}", mid, Arrays.toString(array)); 
+		LOGGER.debug("mid={} merge {}", mid, Arrays.toString(array)); 
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -215,11 +211,14 @@ public class Sorts {
 	@SuppressWarnings("rawtypes")
 	private static void recursion_partition(Object[] array, int low, int high, Comparator comp) {
 		if(low >= high){
-			return;
+			return; 
 		}
-		int j = partition(array, low, high, comp);
-		recursion_partition(array, low, j - 1, comp);
-		recursion_partition(array, j + 1, high, comp);
+		
+		int partition = partition(array, low, high, comp);
+		LOGGER.debug(" partition={}", partition);
+		
+		recursion_partition(array, low, partition - 1, comp);
+		recursion_partition(array, partition + 1, high, comp);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -231,11 +230,12 @@ public class Sorts {
 			if(i >= j){
 				break;
 			}
+
 			swap(array, i, j);
 		}
-		
+
 		if(low != j){
-			swap(array, low, j); // 将切分元素放入正确的位置
+			swap(array, low, j); // 将切分元素放入正确的位置 
 		}
 		return j;
 	}

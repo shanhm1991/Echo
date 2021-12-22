@@ -41,6 +41,6 @@ public class _Main {
 //		list.add(2);
 //		list.add(1);
 		
-		Sorts.sort(list, Sorts.ALGORITHM_QUICK);
+		Sorts.sort(list, Sorts.ALGORITHM_INSERT_SWAP);
 	}
 }
