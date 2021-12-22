@@ -1,5 +1,8 @@
 /.settings/
 /target/
 /log/
+src/test/python/fly/__pycache__
+.pydevproject
 .project
 .classpath
+

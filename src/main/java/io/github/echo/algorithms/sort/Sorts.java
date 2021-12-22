@@ -25,6 +25,8 @@ public class Sorts {
 
 	public static final String ALGORITHM_MERGE = "MERGE";
 
+	public static final String ALGORITHM_QUICK = "QUICK";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Sorts.class);
 
 	private static int times_compare;
@@ -50,6 +52,7 @@ public class Sorts {
 		case ALGORITHM_INSERT_MOVE: sort_insert_move(array, comp); break;
 		case ALGORITHM_INSERT_XIER: sort_xier(array, comp); break;
 		case ALGORITHM_MERGE: sort_merge(array, comp); break;
+		case ALGORITHM_QUICK: sort_quick(array, comp); break;
 		}
 
 		ListIterator<E> i = list.listIterator();
@@ -61,25 +64,26 @@ public class Sorts {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static boolean comp(Object[] array, int a, int b, Comparator comp) {
-		LOGGER.debug(String.format("%25s comp %2s： %s[%s]<->%s[%s]", " ", ++times_compare, array[a], a, array[b], b)); 
+		LOGGER.debug(String.format("%60s %2s comp： %s<->%s([%s]<->[%s])", 
+				" ", ++times_compare, array[a], array[b], a, b)); 
 		return (comp != null && comp.compare(array[a], array[b]) > 0)
 				|| (comp == null && ((Comparable)array[a]).compareTo(array[b]) > 0);
 	}
 
 	private static void swap(Object[] array, int a, int b) {
-		LOGGER.debug(String.format("swap %2s： %s[%s]<->%s[%s]", ++times_swap, array[a], a, array[b], b)); 
 		Object t = array[a];
 		array[a] = array[b];
 		array[b] = t;
-		LOGGER.debug(Arrays.toString(array)); 
+		LOGGER.debug(String.format("%2s swap： %s<->%s([%s]<->[%s]) -> %s", 
+				++times_swap, array[b], array[a], a, b, Arrays.toString(array))); 
 	}
 
 	private static void move(Object[] array, int a, int b) {
-		LOGGER.debug(String.format("move %2s： %s[%s] -> %s[%s]", ++times_swap, array[b], b, array[b], a)); 
 		Object t = array[b];
 		System.arraycopy(array, a, array, a + 1, b - a);
 		array[a] = t;
-		LOGGER.debug(Arrays.toString(array)); 
+		LOGGER.debug(String.format("%2s move： %s([%s]->[%s]) -> %s",
+				++times_swap, t, b, a, Arrays.toString(array)));
 	}
 
 	/**
@@ -162,29 +166,33 @@ public class Sorts {
 	@SuppressWarnings("rawtypes")
 	private static void sort_merge(Object[] array, Comparator comp) {
 		Object[] temp = array.clone();
-		mergeSort(array, temp, 0, array.length - 1, comp);
+		recursion_mid(array, temp, 0, array.length - 1, comp);
 	}
 
 	@SuppressWarnings({ "rawtypes" })
-	private static void mergeSort(Object[] array, Object[] temp, int low, int high, Comparator comp) {
+	private static void recursion_mid(Object[] array, Object[] temp, int low, int high, Comparator comp) {
 		if(low >= high){
 			return;
 		}
 
 		int mid = (low + high) / 2;
-		LOGGER.debug("mid = {}", mid); 
-		
-		mergeSort(array, temp, low, mid, comp);
-		mergeSort(array, temp, mid + 1, high, comp);
-		
+		LOGGER.debug("recursion mid={}", mid); 
+
+		recursion_mid(array, temp, low, mid, comp);
+		recursion_mid(array, temp, mid + 1, high, comp);
+
 		merge(array, temp, low, mid, high, comp);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private static void merge(Object[] array, Object[] temp, int low, int mid, int high, Comparator comp) {
+		if(comp(array, mid + 1, mid, comp)){
+			LOGGER.debug("****** skip merge mid={} ******", mid); 
+			return;
+		}
+
 		int i = low, j = mid + 1;
 		System.arraycopy(array, low, temp, low, high - low + 1);
-		
 		for(int k = low; k <= high; k++){
 			if(i > mid){
 				array[k] = temp[j++];
@@ -197,5 +205,38 @@ public class Sorts {
 			}
 		}
 		LOGGER.debug("merge mid={}, {}", mid, Arrays.toString(array)); 
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static void sort_quick(Object[] array, Comparator comp) {
+		recursion_partition(array, 0, array.length - 1, comp);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static void recursion_partition(Object[] array, int low, int high, Comparator comp) {
+		if(low >= high){
+			return;
+		}
+		int j = partition(array, low, high, comp);
+		recursion_partition(array, low, j - 1, comp);
+		recursion_partition(array, j + 1, high, comp);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static int partition(Object[] array, int low, int high, Comparator comp) {
+		int i = low, j = high + 1; // 左右扫描指针
+		while(true){ 
+			while(++i < high && comp(array, low, i, comp)){}
+			while(--j > low && !comp(array, low, j, comp)){}
+			if(i >= j){
+				break;
+			}
+			swap(array, i, j);
+		}
+		
+		if(low != j){
+			swap(array, low, j); // 将切分元素放入正确的位置
+		}
+		return j;
 	}
 }

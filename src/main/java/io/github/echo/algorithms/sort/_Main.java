@@ -41,6 +41,6 @@ public class _Main {
 //		list.add(2);
 //		list.add(1);
 		
-		Sorts.sort(list, Sorts.ALGORITHM_MERGE);
+		Sorts.sort(list, Sorts.ALGORITHM_QUICK);
 	}
 }
