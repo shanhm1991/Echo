@@ -26,6 +26,8 @@ public class Sorts {
 	public static final String ALGORITHM_MERGE = "MERGE";
 
 	public static final String ALGORITHM_QUICK = "QUICK";
+	
+	public static final String ALGORITHM_QUICK2 = "QUICK2";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Sorts.class);
 
@@ -53,6 +55,7 @@ public class Sorts {
 		case ALGORITHM_INSERT_XIER: sort_xier(array, comp); break;
 		case ALGORITHM_MERGE: sort_merge(array, comp); break;
 		case ALGORITHM_QUICK: sort_quick(array, comp); break;
+		case ALGORITHM_QUICK2: sort_quick2(array, comp); break;
 		}
 
 		ListIterator<E> i = list.listIterator();
@@ -63,10 +66,13 @@ public class Sorts {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static boolean comp(Object[] array, int a, int b, Comparator comp) {
+	private static int comp(Object[] array, int a, int b, Comparator comp) {
 		LOGGER.debug(String.format("%60s %2s comp：%2s<>%2s ([%2s]<>[%2s])", " ", ++times_compare, array[a], array[b], a, b)); 
-		return (comp != null && comp.compare(array[a], array[b]) > 0)
-				|| (comp == null && ((Comparable)array[a]).compareTo(array[b]) > 0);
+		if(comp != null){
+			return comp.compare(array[a], array[b]);
+		}else{
+			return ((Comparable)array[a]).compareTo(array[b]);
+		}
 	}
 
 	private static void swap(Object[] array, int a, int b) {
@@ -93,7 +99,7 @@ public class Sorts {
 	private static void sort_select(Object[] array, Comparator comp) {
 		for(int i = 0; i < array.length; i++){
 			for(int j = i + 1; j < array.length; j++){
-				if(comp(array, i, j, comp)){
+				if(comp(array, i, j, comp) > 0){
 					swap(array, i ,j);
 				}
 			}
@@ -108,7 +114,7 @@ public class Sorts {
 	@SuppressWarnings("rawtypes")
 	private static void sort_insert_swap(Object[] array, Comparator comp) {
 		for(int i = 1; i < array.length; i++){
-			for(int j = i; j > 0 && !comp(array, j, j - 1, comp); j--){
+			for(int j = i; j > 0 && comp(array, j, j - 1, comp) < 0; j--){
 				swap(array, j-1 ,j);
 			}
 		}
@@ -123,7 +129,7 @@ public class Sorts {
 	private static void sort_insert_move(Object[] array, Comparator comp) {
 		for(int i = 1; i < array.length; i++){
 			int index = -1;
-			for(int j = i; j > 0 && comp(array, j - 1, i, comp); j--){
+			for(int j = i; j > 0 && comp(array, i, j - 1, comp) < 0; j--){
 				index = j - 1;
 			}
 			if(index != -1){
@@ -147,7 +153,7 @@ public class Sorts {
 		while(h >= 1){
 			LOGGER.debug("compare interval: {}", h); 
 			for(int i = h; i < array.length; i++){
-				for(int j = i; j >= h && comp(array, j - h, j, comp); j -= h){
+				for(int j = i; j >= h && comp(array, j, j - h, comp) < 0; j -= h){
 					swap(array, j-h ,j);
 				}
 			}
@@ -182,7 +188,7 @@ public class Sorts {
 
 	@SuppressWarnings("rawtypes")
 	private static void merge(Object[] array, Object[] temp, int low, int mid, int high, Comparator comp) {
-		if(comp(array, mid + 1, mid, comp)){
+		if(comp(array, mid + 1, mid, comp) >= 0){
 			LOGGER.debug("mid={} merge skipped...", mid); 
 			return;
 		}
@@ -194,7 +200,7 @@ public class Sorts {
 				array[k] = temp[j++];
 			}else if(j > high){
 				array[k] = temp[i++];
-			}else if(comp(temp, i, j, comp)){
+			}else if(comp(temp, i, j, comp) > 0){
 				array[k] = temp[j++];
 			}else{
 				array[k] = temp[i++];
@@ -224,8 +230,8 @@ public class Sorts {
 	private static int partition(Object[] array, int low, int high, Comparator comp) {
 		int i = low, j = high + 1; // 左右扫描指针
 		while(true){ 
-			while(++i < high && comp(array, low, i, comp)){}
-			while(--j > low && !comp(array, low, j, comp)){}
+			while(++i < high && comp(array, low, i, comp) > 0){}
+			while(--j > low && comp(array, low, j, comp) < 0){}
 			if(i >= j){
 				break;
 			}
@@ -238,5 +244,31 @@ public class Sorts {
 		}
 		LOGGER.debug(" paitition by {}[{}]", array[j], j);
 		return j;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static void sort_quick2(Object[] array, Comparator comp) {
+		recursion_partition2(array, 0, array.length - 1, comp);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static void recursion_partition2(Object[] array, int low, int high, Comparator comp) {
+		if(high <= low){
+			return; 
+		}
+		
+		int lt = low, i = low + 1, gt = high;
+		while(i <= gt){
+			int cmp = comp(array, i, low, comp);
+			if(cmp < 0){
+				swap(array, lt++, i++);
+			}else if(cmp > 0){
+				swap(array, i, gt--);
+			}else{
+				i++;
+			}
+		}
+		recursion_partition2(array, low, lt - 1, comp);
+		recursion_partition2(array, gt + 1, high, comp);
 	}
 }
