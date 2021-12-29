@@ -1,4 +1,4 @@
-package io.github.echo.algorithms.sort;
+package io.github.echo.algorithms;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,7 +26,7 @@ public class Sorts {
 	public static final String ALGORITHM_MERGE = "MERGE";
 
 	public static final String ALGORITHM_QUICK = "QUICK";
-	
+
 	public static final String ALGORITHM_QUICK2 = "QUICK2";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Sorts.class);
@@ -245,21 +245,21 @@ public class Sorts {
 		LOGGER.debug(" paitition by {}[{}]", array[j], j);
 		return j;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private static void sort_quick2(Object[] array, Comparator comp) {
 		recursion_partition2(array, 0, array.length - 1, comp);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private static void recursion_partition2(Object[] array, int low, int high, Comparator comp) {
 		if(high <= low){
 			return; 
 		}
-		
+
 		int lt = low, i = low + 1, gt = high;
 		while(i <= gt){
-			int cmp = comp(array, i, low, comp);
+			int cmp = comp(array, i, lt, comp);
 			if(cmp < 0){
 				swap(array, lt++, i++);
 			}else if(cmp > 0){
