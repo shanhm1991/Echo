@@ -16,9 +16,9 @@ public class Consumer extends Thread{
     
     private static AtomicInteger index = new AtomicInteger(0);
     
-    private TaskList<Task> taskList;
+    private TaskQueue<Task> taskList;
     
-    public Consumer(TaskList<Task> taskList){
+    public Consumer(TaskQueue<Task> taskList){
         this.setName("consumer-" + index.incrementAndGet()); 
         this.taskList = taskList;
     }

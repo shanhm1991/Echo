@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author shanhm1991@163.com
  *
  */
-public class TaskList<T extends Runnable> {
+public class TaskQueue<T extends Runnable> {
 	 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
  

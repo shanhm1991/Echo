@@ -16,9 +16,9 @@ public class Producer extends Thread{
     
     private static AtomicInteger index = new AtomicInteger(0);
     
-    private TaskList<Task> taskList;
+    private TaskQueue<Task> taskList;
     
-    public Producer(TaskList<Task> taskList){
+    public Producer(TaskQueue<Task> taskList){
         this.setName("producer-" + index.incrementAndGet()); 
         this.taskList = taskList;
     }

@@ -17,9 +17,9 @@ public class Sorts {
 
 	public static final String ALGORITHM_SELECT = "SELECT";
 
-	public static final String ALGORITHM_INSERT_SWAP = "INSERT_SWAP";
+	public static final String ALGORITHM_INSERT = "INSERT";
 
-	public static final String ALGORITHM_INSERT_MOVE = "INSERT_MOVE";
+	public static final String ALGORITHM_INSERT_BINARY = "INSERT_BINARY";
 
 	public static final String ALGORITHM_INSERT_XIER = "INSERT_XIER";
 
@@ -31,9 +31,9 @@ public class Sorts {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Sorts.class);
 
-	private static int times_compare;
+	public static int times_compare;
 
-	private static int times_swap;
+	public static int times_swap;
 
 	public static <T extends Comparable<? super T>> void sort(List<T> list, String algorithm) {
 		doSort(list, algorithm, null);
@@ -49,13 +49,13 @@ public class Sorts {
 
 		Object[] array = list.toArray();
 		switch(algorithm){
-		case ALGORITHM_SELECT: sort_select(array, comp); break;
-		case ALGORITHM_INSERT_SWAP: sort_insert_swap(array, comp); break;
-		case ALGORITHM_INSERT_MOVE: sort_insert_move(array, comp); break;
-		case ALGORITHM_INSERT_XIER: sort_xier(array, comp); break;
-		case ALGORITHM_MERGE: sort_merge(array, comp); break;
-		case ALGORITHM_QUICK: sort_quick(array, comp); break;
-		case ALGORITHM_QUICK2: sort_quick2(array, comp); break;
+		case ALGORITHM_SELECT: sort_select(array, comp); break;               // 选择排序（冒泡）
+		case ALGORITHM_INSERT: sort_insert_swap(array, comp); break;          // 插入排序
+		case ALGORITHM_INSERT_BINARY: sort_insert_binary(array, comp); break; // 插入排序（二分法改进）
+		case ALGORITHM_INSERT_XIER: sort_xier(array, comp); break;            // 希尔排序
+		case ALGORITHM_MERGE: sort_merge(array, comp); break;                 // 归并排序
+		case ALGORITHM_QUICK: sort_quick(array, comp); break;                 // 快速排序
+		case ALGORITHM_QUICK2: sort_quick2(array, comp); break;               // 快速排序（重复场景改进）
 		}
 
 		ListIterator<E> i = list.listIterator();
@@ -67,7 +67,8 @@ public class Sorts {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static int comp(Object[] array, int a, int b, Comparator comp) {
-		LOGGER.debug(String.format("%60s %2s comp：%2s<>%2s ([%2s]<>[%2s])", " ", ++times_compare, array[a], array[b], a, b)); 
+		times_compare++;
+		LOGGER.debug(String.format("%60s %2s comp：%2s<>%2s ([%2s]<>[%2s])", " ", times_compare, array[a], array[b], a, b)); 
 		if(comp != null){
 			return comp.compare(array[a], array[b]);
 		}else{
@@ -79,14 +80,8 @@ public class Sorts {
 		Object t = array[a];
 		array[a] = array[b];
 		array[b] = t;
-		LOGGER.debug(String.format("%2s swap： %2s<>%2s ([%2s]<>[%2s]) = %s", ++times_swap, array[b], array[a], a, b, Arrays.toString(array))); 
-	}
-
-	private static void move(Object[] array, int a, int b) {
-		Object t = array[b];
-		System.arraycopy(array, a, array, a + 1, b - a);
-		array[a] = t;
-		LOGGER.debug(String.format("%2s move： %s([%s]->[%s]) = %s", ++times_swap, t, b, a, Arrays.toString(array)));
+		times_swap++;
+		LOGGER.debug(String.format("%2s swap： %2s<>%2s ([%2s]<>[%2s]) = %s", times_swap, array[b], array[a], a, b, Arrays.toString(array))); 
 	}
 
 	/**
@@ -121,21 +116,55 @@ public class Sorts {
 	}
 
 	/**
-	 * 插入排序：通过move代替swap，可以降低操作次数
+	 * 插入排序：通过二分法改进
 	 * @param array
 	 * @param comp
 	 */
 	@SuppressWarnings("rawtypes")
-	private static void sort_insert_move(Object[] array, Comparator comp) {
-		for(int i = 1; i < array.length; i++){
-			int index = -1;
-			for(int j = i; j > 0 && comp(array, i, j - 1, comp) < 0; j--){
-				index = j - 1;
-			}
-			if(index != -1){
-				move(array, index ,i);
+	private static void sort_insert_binary(Object[] array, Comparator comp) {
+		if(array.length < 2){
+			return;
+		}else if(comp(array, 0, 1, comp) > 0){
+			swap(array, 0 ,1);
+		}
+		
+		if(array.length > 2){
+			for(int i = 2; i < array.length; i++){
+				int mid = mid(array, i, comp);
+				if(comp(array, i, mid, comp) > 0){
+					move(array, mid + 1, i);
+				}else{
+					move(array, mid, i);
+				}
 			}
 		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static int mid(Object[] array, int target, Comparator comp){
+		int left = 0;
+		int right = target;
+		int mid = (left + right) / 2;
+		while(mid > left && mid < right){
+			if(comp(array, target, mid, comp) < 0){ 
+				right = mid; 
+			}else if(comp(array, target, mid, comp) > 0){
+				left = mid;
+			}else{
+				return mid; // 等于位置直接可以原地插入
+			}
+			mid = (left + right) / 2;
+		}
+		return mid;
+	}
+	
+	private static void move(Object[] array, int mid, int target) {
+		Object t = array[target];
+		System.arraycopy(array, mid, array, mid + 1, target - mid);
+		array[mid] = t;
+		
+		times_swap++;
+		LOGGER.debug(String.format("%2s move： %s([%s]->[%s]) = %s", times_swap, t, target, mid, Arrays.toString(array)));
 	}
 
 	/**
