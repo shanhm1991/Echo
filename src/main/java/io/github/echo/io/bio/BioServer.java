@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import io.github.echo.io.bio.handler.CancellableExecutor;
 import io.github.echo.io.bio.handler.CancellableFuture;
-import io.github.echo.io.bio.handler.Handler;
+import io.github.echo.io.bio.handler.CancellableHandler;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class BioServer extends Thread {
 				msg = new String(bytes);
 				
 				// 根据协议选择对应的Handler进行处理，这里还是简单处理
-				executor.submit(new Handler(socket, msg));
+				executor.submit(new CancellableHandler(socket, msg));
 			} catch (RejectedExecutionException e){
 				if(isInterrupted()){
 					LOG.info("服务已经被关闭，保存或丢弃接收的消息：" + msg);

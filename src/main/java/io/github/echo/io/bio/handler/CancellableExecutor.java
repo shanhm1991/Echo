@@ -23,7 +23,7 @@ public class CancellableExecutor extends ThreadPoolExecutor {
 
 	@Override
 	protected <T> RunnableFuture<T> newTaskFor(Runnable runnable,T value) {
-		if (runnable instanceof Handler) {
+		if (runnable instanceof CancellableHandler) {
 			return new CancellableFuture<>(runnable, value);
 		} else {
 			return super.newTaskFor(runnable,value);

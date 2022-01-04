@@ -41,6 +41,7 @@ public class AioClient extends Thread {
 	public void run() {
 		socketchannel.connect(new InetSocketAddress(host, port), connectLatch, new ClientConnectHandler()); // 异步连接
 		try{
+			connectLatch.await();
 			while (!interrupted()) {
 				String msg = "msg" + ++msg_index;
 				byte[] bytes = msg.getBytes();
@@ -48,6 +49,7 @@ public class AioClient extends Thread {
 				buffer.put(bytes);
 				buffer.flip();
 
+				
 				LOG.info(">> send " + msg);
 				socketchannel.write(buffer, buffer, new ClientWriteHandler(socketchannel)); // 异步写消息，然后异步读响应
 				Thread.sleep(1000);

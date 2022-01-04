@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
  * @author shanhm1991
  *
  */
-public class Handler implements Runnable {
+public class CancellableHandler implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger(Handler.class);
+	private static final Logger LOG = Logger.getLogger(CancellableHandler.class);
 
 	private static SecureRandom random = new SecureRandom();
 
@@ -22,7 +22,7 @@ public class Handler implements Runnable {
 
 	private final String msg;
 
-	public Handler(Socket socket, String msg){
+	public CancellableHandler(Socket socket, String msg){
 		this.socket = socket;
 		this.msg = msg;
 	}

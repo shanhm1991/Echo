@@ -81,7 +81,7 @@ public class AioServer extends Thread{
 					buffer.clear();
 					buffer.put(bytes);
 					buffer.flip(); 
-					socketChannel.write(buffer).get(); // 这里没有同步等待
+					socketChannel.write(buffer); // 这里没有同步等待
 					LOG.info("<< " + response + ", cost=" + (System.currentTimeMillis() - beginTime) + "ms");
 				}
 			}catch(Exception e){

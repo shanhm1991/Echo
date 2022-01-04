@@ -9,14 +9,14 @@ import java.util.concurrent.FutureTask;
  */
 public class CancellableFuture<T> extends FutureTask<T> {
 
-	private Handler handler;
+	private CancellableHandler handler;
 	
 	private String msg;
 
 	public CancellableFuture(Runnable runnable, T result) {
 		super(runnable, result);
-		if(runnable instanceof Handler){
-			this.handler = (Handler)runnable;
+		if(runnable instanceof CancellableHandler){
+			this.handler = (CancellableHandler)runnable;
 		}
 	}
 
