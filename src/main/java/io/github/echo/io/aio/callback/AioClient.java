@@ -5,69 +5,71 @@ import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import io.github.echo.io.bio.msg.Request;
-import io.github.echo.io.bio.msg.Request1;
-
-
+/**
+ * 
+ * @author shanhm1991
+ *
+ */
 public class AioClient extends Thread {
 
 	private static final Logger LOG = Logger.getLogger(AioServer.class);
 
-	private String host;
+	private final AsynchronousSocketChannel socketchannel;
+	
+	private final CountDownLatch connectLatch = new CountDownLatch(1);
+	
+	private final String host;
 
-	private int port;
+	private final int port;
 
-	private AsynchronousSocketChannel channel;
+	private int msg_index = 0;
 
-	public AioClient(String host, int port) {
+	public AioClient(String host, int port) throws IOException {
 		this.host = host;
 		this.port = port;
+		this.socketchannel = AsynchronousSocketChannel.open();
+		this.socketchannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		this.setName("client"); 
 	}
 
 	@Override
 	public void run() {
-		try {
-			channel = AsynchronousSocketChannel.open();
-			channel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		} catch (IOException e) {
-			LOG.error("客户端开启异常：" + e.getMessage());
-			return;
-		}
+		socketchannel.connect(new InetSocketAddress(host, port), connectLatch, new ClientConnectHandler()); // 异步连接
+		try{
+			while (!interrupted()) {
+				String msg = "msg" + ++msg_index;
+				byte[] bytes = msg.getBytes();
+				ByteBuffer buffer = ByteBuffer.allocate(1024); // 简单消息，这里申请个固定的缓存
+				buffer.put(bytes);
+				buffer.flip();
 
-		//异步连接
-		channel.connect(new InetSocketAddress(host, port), this, new ClientConnectHandler());
-
-		//循环发送消息
-		while(true){
-			Request request = new Request1();
-			request.init(this.getName()); 
-			LOG.info("发送请求：" + request.getMsg());
-			
-			
-			byte[] req = request.getBytes();
-			ByteBuffer buffer = ByteBuffer.allocate(req.length);
-			buffer.put(req);
-			buffer.flip();
-			
-			channel.write(buffer, buffer, new ClientWriteHandler(channel));
-			
-			try {
+				LOG.info(">> send " + msg);
+				socketchannel.write(buffer, buffer, new ClientWriteHandler(socketchannel)); // 异步写消息，然后异步读响应
 				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			LOG.error("client stopped, " + e.getMessage()); 
 		}
 	}
+	
+	public void shutdown() {
+		LOG.info("关闭客户端，停止发送...");
+		interrupt(); 
+		
+		LOG.info("断开连接...");
+		IOUtils.closeQuietly(socketchannel);
+	}
 
-	/**
-	 * @测试
-	 */
-	public static void main(String[] args) { 
+	public static void main(String[] args) throws IOException, InterruptedException { 
 		AioClient client = new AioClient("127.0.0.1", 8080);
 		client.start();
+		
+		Thread.sleep(8000);
+		client.shutdown();
 	}
 }

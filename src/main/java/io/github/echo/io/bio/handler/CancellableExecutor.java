@@ -9,22 +9,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
- * 扩展ThreadPoolExecutor，对于CancellableRunnable，在构造RunnableFuture的时候调用它自己的newTask()方法
+ * 扩展下ThreadPoolExecutor，自定义下newTaskFor()的封装，以便自定义任务的取消处理
  * 
  * @author shanhm1991
  *
  */
-public class ExtendExecutor extends ThreadPoolExecutor {
+public class CancellableExecutor extends ThreadPoolExecutor {
 	
-	public ExtendExecutor(int corePoolSize, int maximumPoolSize, long keepAliveSeconds, int port) {
+	public CancellableExecutor(int corePoolSize, int maximumPoolSize, long keepAliveSeconds) {
 		super(corePoolSize, maximumPoolSize, keepAliveSeconds, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<Runnable>(100), new HandleThreadFactory());
 	}
 
 	@Override
 	protected <T> RunnableFuture<T> newTaskFor(Runnable runnable,T value) {
-		if (runnable instanceof CancellableHandler) {
-			return ((CancellableHandler) runnable).newTask();
+		if (runnable instanceof Handler) {
+			return new CancellableFuture<>(runnable, value);
 		} else {
 			return super.newTaskFor(runnable,value);
 		}
@@ -32,10 +32,9 @@ public class ExtendExecutor extends ThreadPoolExecutor {
 
 	private static class HandleThreadFactory implements ThreadFactory {
 		private AtomicInteger index = new AtomicInteger(0);
-
 		@Override
 		public Thread newThread(Runnable r) {
-			return new Thread(r, "handler-" + index.incrementAndGet());
+			return new Thread(r, "server-handler-" + index.incrementAndGet());
 		}
 	}
 }

@@ -3,20 +3,17 @@ package io.github.echo.io.aio.future;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.charset.Charset;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadFactory;
+import java.security.SecureRandom;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-
-import io.github.echo.io.Calculator;
 
 /**
  * 
@@ -26,101 +23,83 @@ import io.github.echo.io.Calculator;
 public class AioServer extends Thread{ 
 
 	private static final Logger LOG = Logger.getLogger(AioServer.class);
-
-	private int port;
-
-	private AsynchronousServerSocketChannel serverSocketChannel;
 	
-	private static ThreadPoolExecutor exec = new ThreadPoolExecutor(10,10,10,TimeUnit.SECONDS,
-			new LinkedBlockingDeque<Runnable>(100),new HandlerFactory());
+	private static SecureRandom random = new SecureRandom();
 
-	public AioServer(int port){
-		this.port = port;
+	private final AsynchronousServerSocketChannel serverSocketChannel;
+
+	public AioServer(int port) throws IOException{ 
+		ExecutorService threadPool = new ThreadPoolExecutor(
+				0, 10, 5000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(threadPool);
+		this.serverSocketChannel = AsynchronousServerSocketChannel.open(group);
+		this.serverSocketChannel.bind(new InetSocketAddress(port));
+		this.setName("server"); 
 	}
 
 	@Override
 	public void run(){
-		try {
-			serverSocketChannel = AsynchronousServerSocketChannel.open();
-		} catch (IOException e) {
-			LOG.error(e);
+		LOG.info("启动监听...");
+		try{
+			while (!interrupted()) {
+				AsynchronousSocketChannel socketChannel = serverSocketChannel.accept().get(); // 同步等待消息
+				new Handler(socketChannel).start(); // 这里只有一个连接，所以没有用线程池，不过这里是长链接
+			}
+		}catch(Exception e){
+			LOG.error("server stopped, " + e.getMessage()); 
 			return;
 		}
-		if (!serverSocketChannel.isOpen()) {
-			LOG.error("服务启动失败");
-			return;
-		} 
-		try {
-			serverSocketChannel.bind(new InetSocketAddress(port));
-		} catch (IOException e1) {
-			LOG.error("服务启动失败",e1);
-			return;
-		}
-
-		LOG.info("启动服务端口：" + port);
-		while (true) {
-			//返回的是future，不能重复调用
-			Future<AsynchronousSocketChannel> socketChannelFuture = serverSocketChannel.accept();
-			try {
-				AsynchronousSocketChannel socketChannel = socketChannelFuture.get();
-
-				exec.submit(new Handler(socketChannel));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			} 
-		}
-	}
-
-
-	private class Handler extends Thread {
-
-		private AsynchronousSocketChannel socketChannel;
-
-		public Handler(AsynchronousSocketChannel socketChannel){
-			this.socketChannel = socketChannel;
-		}
-
-		@Override
-		public void run(){
-				ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-				try {
-					socketChannel.read(buffer).get();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					return;
-				} catch (ExecutionException e) {
-					e.printStackTrace();
-					return;
-				}
-				buffer.flip();
-				String request = Charset.defaultCharset().decode(buffer).toString();
-				LOG.info("收到请求：" + request);
-
-				String response = String.valueOf(Calculator.conversion(request));
-				byte[] bytes = response.getBytes();  
-				ByteBuffer writeBuffer = ByteBuffer.allocate(bytes.length);  
-				writeBuffer.put(bytes);  
-				writeBuffer.flip();  
-				LOG.info("返回响应：" + response);
-				socketChannel.write(writeBuffer);
-
-		}
-
 	}
 	
-	private static class HandlerFactory implements ThreadFactory {
-		private AtomicInteger index = new AtomicInteger(0);
-
+	private class Handler extends Thread {
+		
+		private final AsynchronousSocketChannel socketChannel;
+		
+		public Handler(AsynchronousSocketChannel socketChannel){
+			this.socketChannel = socketChannel;
+			this.setName("handler"); 
+		}
+		
 		@Override
-		public Thread newThread(Runnable r) {
-			return new Thread(r, "handler-" + index.incrementAndGet());
+		public void run() {
+			ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+			try{
+				while (!interrupted()) {
+					buffer.clear();
+					socketChannel.read(buffer).get(); // 同步读取
+					buffer.flip();
+					byte[] bytes = new byte[buffer.remaining()];
+					buffer.get(bytes);
+					String msg = new String(bytes);
+					LOG.info(">> accept " + msg); 
+					
+					long beginTime = System.currentTimeMillis();
+					Thread.sleep(random.nextInt(100));
+					
+					String response = "resp for " + msg;
+					bytes = response.getBytes();
+					buffer.clear();
+					buffer.put(bytes);
+					buffer.flip(); 
+					socketChannel.write(buffer).get(); // 这里没有同步等待
+					LOG.info("<< " + response + ", cost=" + (System.currentTimeMillis() - beginTime) + "ms");
+				}
+			}catch(Exception e){
+				LOG.error("handle error, " + e.getMessage());
+				shutdown();
+			}
 		}
 	}
+	
+	public void shutdown(){
+		LOG.info("关闭服务，停止接收请求...");
+		interrupt(); //中断accepter
 
+		LOG.info("断开连接...");
+		IOUtils.closeQuietly(serverSocketChannel);
+	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, InterruptedException { 
 		AioServer server = new AioServer(7070);
 		server.start();
 	}

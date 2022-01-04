@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -19,51 +21,57 @@ public class BioClient extends Thread {
 
 	private static final Logger LOG = Logger.getLogger(BioClient.class);
 	
-	private static final int CONCURRENCY = 10; //并发数
-	
-	private static CyclicBarrier barrier = new CyclicBarrier(CONCURRENCY);
-	
+	private static AtomicInteger msg_index = new AtomicInteger(0);
+
 	private static SecureRandom random = new SecureRandom();
 	
-	private final Socket socket;
-	
-	private final String msg;
+	private final CyclicBarrier barrier;
 
-	public BioClient(String host, int port, int index) throws Exception { 
-		this.socket = new Socket(host, port);
+	private final String host;
+
+	private final int port;
+
+	public BioClient(String host, int port, int index, CyclicBarrier barrier) throws Exception { 
+		this.host = host;
+		this.port = port;
+		this.barrier = barrier;
 		this.setName("client-" + index);
-		this.msg = "Hi, i'm client-" + index;
 	}
 
 	@Override
 	public void run() {
 		while (true) {
+			Socket socket = null; // 短连接消息，每次消息都重新建立连接
+			try {
+				socket = new Socket(host, port);
+			} catch (Exception e) {
+				LOG.error("连接失败：" + e.getMessage());
+				return;
+			}
+
 			try(OutputStream out = socket.getOutputStream();
 					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
-				sleep(random.nextInt(2000));
-				barrier.await();
+				sleep(random.nextInt(1000));
+				barrier.await(3000, TimeUnit.MILLISECONDS);
 
-				LOG.info(">>：" + msg);
+				String msg = "msg" + msg_index.incrementAndGet();
+				LOG.info(">> send " + msg);
 				out.write(msg.getBytes());
 				String resp = in.readLine();
-				LOG.info("<<：" + resp);
+				LOG.info("<< " + resp);
 			}catch(Exception e){ 
 				LOG.error("发送失败：" + e.getMessage());
 				return;
 			}finally {
-				barrier.reset(); // 使其它client发生BrokenBarrierException而结束
 				IOUtils.closeQuietly(socket); 
 			}
 		}
 	} 
-
-	/**
-	 * @throws Exception  
-	 * @测试 
-	 */
-	public static void main(String[] args) throws Exception {
+	
+	public static void main(String[] args) throws Exception { 
+		CyclicBarrier barrier = new CyclicBarrier(10); // 模拟并发消息
 		for (int i = 1; i <= 30; i++) {
-			new BioClient("127.0.0.1", 4040, i).start();
+			new BioClient("127.0.0.1", 4040, i, barrier).start();
 		}
 	}
 }
