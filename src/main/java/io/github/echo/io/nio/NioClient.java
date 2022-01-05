@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 public class NioClient {
 
 	private static final Logger LOG = Logger.getLogger(NioClient.class);
-	
+
 	private final SecureRandom random = new SecureRandom();
 
 	private final AtomicInteger msg_index = new AtomicInteger(0);
@@ -31,10 +31,10 @@ public class NioClient {
 
 	private final String host;
 
-	public NioClient(String host, int port, Selector selector) throws IOException{ 
+	public NioClient(String host, int port) throws IOException{ 
 		this.host = host;
 		this.port = port;
-		this.selector = selector;
+		this.selector = Selector.open();
 	}
 
 	public void start() throws IOException{
@@ -46,8 +46,6 @@ public class NioClient {
 
 	private class Sender extends Thread {
 
-		private SocketChannel socketChannel; 
-
 		public Sender(int index){
 			this.setName("client-sender-" + index); 
 		}
@@ -55,16 +53,14 @@ public class NioClient {
 		@Override
 		public void run() {
 			try{
-				// 这里先同步进行连接，当然也可以通过SelectionKey.OP_CONNECT去监听异步连接
-				this.socketChannel = SocketChannel.open();
-				this.socketChannel.configureBlocking(true);
-				this.socketChannel.connect(new InetSocketAddress(host, port));
-
-				// 然后再设置为异步，进行消息发送
-				this.socketChannel.configureBlocking(false); 
-				this.socketChannel.register(selector, SelectionKey.OP_WRITE);
-
 				while (!interrupted()) {
+					// 这里先同步进行连接，当然也可以通过SelectionKey.OP_CONNECT去监听异步连接
+					SocketChannel socketChannel = SocketChannel.open();
+					socketChannel.configureBlocking(true);
+					socketChannel.connect(new InetSocketAddress(host, port));
+					// 然后再设置为异步，进行消息发送
+					socketChannel.configureBlocking(false); 
+
 					String msg = "msg" + msg_index.incrementAndGet();
 					byte[] bytes = msg.getBytes();
 					ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
@@ -86,7 +82,8 @@ public class NioClient {
 	private class Accpeter extends Thread {
 
 		public Accpeter(){
-			this.setName("client-accpeter"); 
+			this.setName("client-accpeter");  
+			this.setDaemon(true);
 		}
 
 		@Override
@@ -123,7 +120,6 @@ public class NioClient {
 	}
 
 	public static void main(final String[] args) throws IOException {
-		Selector selector = Selector.open();
-		new NioClient("127.0.0.1", 8080, selector).start();
+		new NioClient("127.0.0.1", 8080).start();
 	}
 }

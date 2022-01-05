@@ -100,11 +100,12 @@ public class NioServer extends Thread {
 				buffer.flip();
 
 				Thread.sleep(random.nextInt(100));
-
-				channel.write(buffer);
+				channel.write(buffer); // 这里假设是短消息一次写完
 				LOG.info("<< " + response + ", cost=" + (System.currentTimeMillis() - beginTime) + "ms");
 			} catch (Exception e){
 				LOG.error("处理异常", e); 
+			}finally{
+				IOUtils.closeQuietly(channel); 
 			}
 		}
 	}

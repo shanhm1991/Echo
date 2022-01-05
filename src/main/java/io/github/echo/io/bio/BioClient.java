@@ -43,6 +43,8 @@ public class BioClient extends Thread {
 		while (true) {
 			Socket socket = null; // 短连接消息，每次消息都重新建立连接
 			try {
+				sleep(random.nextInt(1000));
+				barrier.await(3000, TimeUnit.MILLISECONDS);
 				socket = new Socket(host, port);
 			} catch (Exception e) {
 				LOG.error("连接失败：" + e.getMessage());
@@ -51,9 +53,6 @@ public class BioClient extends Thread {
 
 			try(OutputStream out = socket.getOutputStream();
 					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
-				sleep(random.nextInt(1000));
-				barrier.await(3000, TimeUnit.MILLISECONDS);
-
 				String msg = "msg" + msg_index.incrementAndGet();
 				LOG.info(">> send " + msg);
 				out.write(msg.getBytes());
