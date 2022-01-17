@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -13,7 +14,7 @@ import org.apache.log4j.Logger;
  */
 public class ServerAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, AioServer> {
 	
-	private static final Logger LOG = Logger.getLogger(ServerAcceptHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServerAcceptHandler.class);
 
 	@Override
 	public void completed(AsynchronousSocketChannel serverSocketChannel, AioServer server) {

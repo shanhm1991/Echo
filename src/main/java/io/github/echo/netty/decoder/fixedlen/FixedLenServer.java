@@ -1,6 +1,7 @@
 package io.github.echo.netty.decoder.fixedlen;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -24,7 +25,7 @@ import io.netty.handler.codec.string.StringDecoder;
  */
 public class FixedLenServer {
 
-	private static final Logger LOG = Logger.getLogger(FixedLenServer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FixedLenServer.class);
 
 	private final int port;
 

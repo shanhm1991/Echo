@@ -11,7 +11,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class AioServer extends Thread {
 
-	private static final Logger LOG = Logger.getLogger(AioServer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AioServer.class);
 
 	private final AsynchronousServerSocketChannel serverSocketChannel;
 

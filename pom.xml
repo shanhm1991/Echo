@@ -35,15 +35,9 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.30</version>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.0-alpha6</version>
 		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -54,7 +48,6 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.11.0</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
@@ -70,12 +63,12 @@
 			<artifactId>dom4j</artifactId>
 			<version>1.6.1</version>
 		</dependency>
-		
-		<dependency>
+
+		<!-- <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<version>4.1.72.Final</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -91,13 +84,12 @@
 			<artifactId>msgpack</artifactId>
 			<version>0.6.12</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.github.shanhm1991</groupId>
 			<artifactId>spring-fom</artifactId>
 			<version>2.1.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>

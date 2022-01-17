@@ -6,7 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -15,7 +16,7 @@ import org.apache.log4j.Logger;
  */
 public class AioClient extends Thread {
 
-	private static final Logger LOG = Logger.getLogger(AioClient.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AioClient.class);
 
 	private final AsynchronousSocketChannel socketChannel;
 

@@ -3,7 +3,8 @@ package io.github.echo.io.aio.callback;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -12,7 +13,7 @@ import org.apache.log4j.Logger;
  */
 public class ClientConnectHandler implements CompletionHandler<Void, CountDownLatch> {
 	
-	private static final Logger LOG = Logger.getLogger(ClientConnectHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ClientConnectHandler.class);
 	
 	@Override
 	public void completed (Void result, CountDownLatch connectLatch) {

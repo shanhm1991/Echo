@@ -1,6 +1,7 @@
 package io.github.echo.netty.decoder.jackson;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -24,7 +25,7 @@ import io.netty.handler.codec.string.StringDecoder;
 */
 public class JacksonClient {
 
-	private static final Logger LOG = Logger.getLogger(JacksonClient.class);
+	private static final Logger LOG = LoggerFactory.getLogger(JacksonClient.class);
 
 	private final String host;
 

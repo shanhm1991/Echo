@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
  */
 public class BioClient extends Thread {
 
-	private static final Logger LOG = Logger.getLogger(BioClient.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BioClient.class);
 	
 	private static AtomicInteger msg_index = new AtomicInteger(0);
 

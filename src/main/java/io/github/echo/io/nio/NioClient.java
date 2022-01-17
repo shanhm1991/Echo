@@ -10,7 +10,8 @@ import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
  */
 public class NioClient {
 
-	private static final Logger LOG = Logger.getLogger(NioClient.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NioClient.class);
 
 	private final SecureRandom random = new SecureRandom();
 

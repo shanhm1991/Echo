@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.echo.io.bio.handler.CancellableExecutor;
 import io.github.echo.io.bio.handler.CancellableFuture;
@@ -21,7 +22,7 @@ import io.github.echo.io.bio.handler.CancellableHandler;
  */
 public class BioServer extends Thread {
 
-	private static final Logger LOG = Logger.getLogger(BioServer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BioServer.class);
 	
 	private final CancellableExecutor executor = new CancellableExecutor(5, 5, 1);;
 

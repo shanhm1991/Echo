@@ -5,7 +5,8 @@ import java.net.Socket;
 import java.security.SecureRandom;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public class CancellableHandler implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger(CancellableHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CancellableHandler.class);
 
 	private static SecureRandom random = new SecureRandom();
 

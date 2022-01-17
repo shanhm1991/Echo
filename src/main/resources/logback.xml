@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss:SSS} %thread [%level] %m%n" />
+
+	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="root" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>log/root.log</file>  
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+		    <fileNamePattern>log/root.log.%i</fileNamePattern>  
+		    <minIndex>1</minIndex>
+		    <maxIndex>50</maxIndex>
+		</rollingPolicy>
+    	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+        	<maxFileSize>20MB</maxFileSize>      
+        </triggeringPolicy>
+    	<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">  
+      		<pattern>${pattern}</pattern>  
+    	</encoder>  
+	</appender>	
+
+	<root level="info">
+		<appender-ref ref="consoleAppender" />
+		<appender-ref ref="root" />
+	</root>
+</configuration>

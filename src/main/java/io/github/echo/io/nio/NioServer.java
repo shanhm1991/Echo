@@ -11,7 +11,8 @@ import java.security.SecureRandom;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class NioServer extends Thread {
 
-	private static final Logger LOG = Logger.getLogger(NioServer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NioServer.class);
 	
 	private static SecureRandom random = new SecureRandom();
 
@@ -32,7 +33,7 @@ public class NioServer extends Thread {
 		this.selector = Selector.open();
 		this.serverChannel = ServerSocketChannel.open();
 		this.serverChannel.configureBlocking(false);
-		this.serverChannel.socket().bind(new InetSocketAddress(port), port);
+		this.serverChannel.socket().bind(new InetSocketAddress(port));
 		this.serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 		this.setName("server-accepter");
 	}
