@@ -1,8 +1,0 @@
-syntax = "proto2";
-option java_package = "io.github.echo.netty.decoder.protobuf";  
-option java_outer_classname="ResponseProto";  
-
-message Response{
-    required int32 code = 1;
-    required string msg = 2;
-}

@@ -1,8 +1,0 @@
-syntax = "proto2";
-option java_package = "io.github.echo.netty.serialize";  
-option java_outer_classname="UserProtos";  
-
-message User{
-    required int32 age = 1;
-    required string name = 2;
-}
