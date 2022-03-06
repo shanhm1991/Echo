@@ -3,30 +3,32 @@ package io.github.shanhm1991.echo.algorithm.tree;
 import java.util.List;
 
 /**
+ *
  * Tree接口
  *
  * @author shanhm1991@163.com
  * @param <E>
+ *
  */
 public interface Tree<E> {
 
-  boolean isEmpty();
+	boolean isEmpty();
 
-  int size();
+	int size();
 
-  void clear();
+	void clear();
 
-  E getMin();
+	E getMin();
 
-  E getMax();
+	E getMax();
 
-  boolean contains(E e);
+	boolean contains(E e);
 
-  void add(E e);
+	void add(E e);
 
-  void remove(E e);
+	void remove(E e);
 
-  List<E> toList();
+	List<E> toList();
 
-  void printTree();
+	void printTree();
 }
