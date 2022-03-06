@@ -1,8 +1,0 @@
-# 忽略所有文件
-*
-
-# 除了以下文件
-!pom.xml
-!README.md
-!algorithm
-!echo-algorithm
