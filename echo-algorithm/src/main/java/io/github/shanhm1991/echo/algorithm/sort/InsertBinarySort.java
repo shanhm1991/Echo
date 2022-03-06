@@ -1,5 +1,7 @@
 package io.github.shanhm1991.echo.algorithm.sort;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -10,6 +12,7 @@ import java.util.Comparator;
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public class InsertBinarySort extends Sort {
 
 	@Override
@@ -55,7 +58,6 @@ public class InsertBinarySort extends Sort {
 		Object t = array[target];
 		System.arraycopy(array, mid, array, mid + 1, target - mid);
 		array[mid] = t;
-		LOGGER.debug(
-				String.format("%2s move： %s([%s]->[%s]) = %s", ++swapTimes, t, target, mid, Arrays.toString(array)));
+		log.debug(String.format("%2s move： %s([%s]->[%s]) = %s", ++swapTimes, t, target, mid, Arrays.toString(array)));
 	}
 }

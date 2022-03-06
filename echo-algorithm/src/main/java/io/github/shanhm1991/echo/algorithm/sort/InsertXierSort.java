@@ -1,5 +1,7 @@
 package io.github.shanhm1991.echo.algorithm.sort;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Comparator;
 
 /**
@@ -9,6 +11,7 @@ import java.util.Comparator;
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public class InsertXierSort extends Sort {
 
 	@SuppressWarnings("all")
@@ -20,7 +23,7 @@ public class InsertXierSort extends Sort {
 		}
 
 		while (h >= 1) {
-			LOGGER.debug("compare interval: {}", h);
+			log.debug("compare interval: {}", h);
 			for (int i = h; i < array.length; i++) {
 				for (int j = i; j >= h && comp(array, j, j - h, comp) < 0; j -= h) {
 					swap(array, j - h, j);

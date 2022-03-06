@@ -1,5 +1,7 @@
 package io.github.shanhm1991.echo.algorithm.sort;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -10,6 +12,7 @@ import java.util.Comparator;
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public class MergeSort extends Sort {
 
 	@Override
@@ -26,7 +29,7 @@ public class MergeSort extends Sort {
 		}
 
 		int mid = (low + high) / 2;
-		LOGGER.debug("mid={}", mid);
+		log.debug("mid={}", mid);
 
 		recursion_mid(array, temp, low, mid, comp);
 		recursion_mid(array, temp, mid + 1, high, comp);
@@ -36,7 +39,7 @@ public class MergeSort extends Sort {
 	@SuppressWarnings("all")
 	private void merge(Object[] array, Object[] temp, int low, int mid, int high, Comparator comp) {
 		if (comp(array, mid + 1, mid, comp) >= 0) {
-			LOGGER.debug("mid={} merge skipped...", mid);
+			log.debug("mid={} merge skipped...", mid);
 			return;
 		}
 
@@ -53,6 +56,6 @@ public class MergeSort extends Sort {
 				array[k] = temp[i++];
 			}
 		}
-		LOGGER.debug("mid={} merge {}", mid, Arrays.toString(array));
+		log.debug("mid={} merge {}", mid, Arrays.toString(array));
 	}
 }

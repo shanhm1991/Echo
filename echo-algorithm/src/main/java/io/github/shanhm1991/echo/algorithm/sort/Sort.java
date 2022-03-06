@@ -8,6 +8,8 @@ import java.util.ListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  *
  * 排序接口
@@ -15,9 +17,8 @@ import org.slf4j.LoggerFactory;
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public abstract class Sort {
-
-	protected static final Logger LOGGER = LoggerFactory.getLogger(Sort.class);
 
 	protected int compareTimes;
 
@@ -25,8 +26,7 @@ public abstract class Sort {
 
 	@SuppressWarnings("all")
 	protected int comp(Object[] array, int a, int b, Comparator comp) {
-		LOGGER.debug(
-				String.format("%60s %2s comp: %2s<>%2s ([%2s]<>[%2s])", " ", ++compareTimes, array[a], array[b], a, b));
+		log.debug(String.format("%60s %2s comp: %2s<>%2s ([%2s]<>[%2s])", " ", ++compareTimes, array[a], array[b], a, b));
 		if (comp != null) {
 			return comp.compare(array[a], array[b]);
 		} else {
@@ -38,8 +38,8 @@ public abstract class Sort {
 		Object t = array[a];
 		array[a] = array[b];
 		array[b] = t;
-		LOGGER.debug(String.format("%2s swap: %2s<>%2s ([%2s]<>[%2s]) = %s", ++swapTimes, array[b], array[a], a, b,
-				Arrays.toString(array)));
+		log.debug(String.format("%2s swap: %2s<>%2s ([%2s]<>[%2s]) = %s", ++swapTimes,
+				array[b], array[a], a, b, Arrays.toString(array)));
 	}
 
 	@SuppressWarnings("all")

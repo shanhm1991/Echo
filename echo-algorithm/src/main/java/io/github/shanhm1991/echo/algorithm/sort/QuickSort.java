@@ -1,5 +1,7 @@
 package io.github.shanhm1991.echo.algorithm.sort;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Comparator;
 
 /**
@@ -9,6 +11,7 @@ import java.util.Comparator;
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public class QuickSort extends Sort {
 
 	@Override
@@ -47,7 +50,7 @@ public class QuickSort extends Sort {
 		if (low != j) {
 			swap(array, low, j); // 将切分元素放入正确的位置
 		}
-		LOGGER.debug(" paitition by {}[{}]", array[j], j);
+		log.debug(" paitition by {}[{}]", array[j], j);
 		return j;
 	}
 }

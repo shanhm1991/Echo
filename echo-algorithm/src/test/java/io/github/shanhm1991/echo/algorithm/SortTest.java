@@ -20,7 +20,7 @@ import io.github.shanhm1991.echo.algorithm.sort.Sort;
 
 /**
  *
- * @author shanhm1991
+ * @author shanhm1991@163.com
  *
  */
 public class SortTest {
