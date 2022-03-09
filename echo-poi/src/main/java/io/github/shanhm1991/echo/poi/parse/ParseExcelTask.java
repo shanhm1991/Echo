@@ -34,7 +34,7 @@ import io.github.shanhm1991.echo.poi.excel.IExcelReader;
  */
 public abstract class ParseExcelTask<V, E> extends ParseTask<V, E> {
 
-	private boolean isBatchBySheet;
+	private final boolean isBatchBySheet;
 
 	protected int sheetIndex = 0;
 
@@ -214,7 +214,6 @@ public abstract class ParseExcelTask<V, E> extends ParseTask<V, E> {
 	/**
 	 * 自定义sheet处理顺序
 	 * @param sheetRangeList 原sheet顺序
-	 * @return 
 	 */
 	protected void reRangeSheet(List<String> sheetRangeList) {
 

@@ -1,5 +1,6 @@
 package io.github.shanhm1991.echo.algorithm;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -42,6 +43,19 @@ public class SortHeap<T extends Comparable<? super T>> {
 
 	public int size() {
 		return size;
+	}
+
+	@SuppressWarnings("all")
+	public List<T> getTop(){
+		List<T> list = new ArrayList<>();
+		for(int i = 0; i < capacity; i++){
+			if(array[i] == null){
+				break;
+			}
+			list.add((T)array[i]);
+		}
+		list.sort(comp);
+		return list;
 	}
 
 	@SuppressWarnings("all")

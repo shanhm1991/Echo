@@ -1,12 +1,11 @@
 package io.github.shanhm1991.echo.poi.excel;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -15,37 +14,33 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 
+ *
  * @author shanhm1991@163.com
  *
  */
+@Slf4j
 public class ExcelReader implements IExcelReader {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ExcelReader.class);
+	private final InputStream inputStream;
 
-	private InputStream inputStream;
+	private final String type;
 
-	private String type;
+	private final Map<String, Sheet> sheetMap = new HashMap<>();
+
+	private final List<String> sheetNameList = new ArrayList<>();
+
+	private final List<String> sheetNameGivenList = new ArrayList<>();
 
 	private Workbook workbook = null;
 
-	private Map<String, Sheet> sheetMap = new HashMap<>();
-
-	private List<String> sheetNameList = new ArrayList<>();
-
-	private List<String> sheetNameGivenList = new ArrayList<>();
-
 	private int sheetIndexReading = 0;
 
-	private Sheet sheet; 
+	private Sheet sheet;
 
 	private int sheetIndex = 0;
 
@@ -70,18 +65,18 @@ public class ExcelReader implements IExcelReader {
 			Resource resource = new ClassPathResource(file.getPath());
 			file = resource.getFile();
 		}
-		
+
 		String name = file.getName();
 		int index = name.lastIndexOf('.');
 		if(index == -1){
 			throw new UnsupportedOperationException("Excel file name must end with .xls or .xlsx");
 		}
-		
+
 		this.type = name.substring(index + 1);
 		if(!EXCEL_XLS.equalsIgnoreCase(type) && !EXCEL_XLSX.equalsIgnoreCase(type)){
 			throw new UnsupportedOperationException("Excel file name must end with .xls or .xlsx.");
 		}
-		
+
 		this.inputStream = new FileInputStream(file);
 		init();
 	}
@@ -97,7 +92,7 @@ public class ExcelReader implements IExcelReader {
 		this.sheetFilter = sheetFilter;
 	}
 
-	private void init() throws IOException{ 
+	private void init() throws IOException{
 		if(EXCEL_XLS.equalsIgnoreCase(type)){
 			workbook = new HSSFWorkbook(inputStream);
 		}else if(EXCEL_XLSX.equalsIgnoreCase(type)){
@@ -116,9 +111,9 @@ public class ExcelReader implements IExcelReader {
 	}
 
 	@Override
-	public List<ExcelRow> readSheet() throws Exception {
+	public List<ExcelRow> readSheet() {
 		List<ExcelRow> list = new ArrayList<>();
-		ExcelRow row = null;
+		ExcelRow row;
 		while((row = readRow()) != null){
 			if(!row.isLastRow()){
 				list.add(row);
@@ -154,7 +149,6 @@ public class ExcelReader implements IExcelReader {
 					}else{
 						sheetIndexReading++;
 						initSheet();
-						continue;
 					}
 				}else{
 					Row row = sheet.getRow(rowIndex);
@@ -162,22 +156,22 @@ public class ExcelReader implements IExcelReader {
 
 					//row not exist, don't know why
 					if(row == null){
-						ExcelRow data = new ExcelRow(rowIndex, new ArrayList<String>(0));
-						data.setSheetIndex(sheetIndex); 
-						data.setSheetName(sheetName); 
-						data.setEmpty(true); 
-						data.setLastRow(rowIndex == rowCount); 
+						ExcelRow data = new ExcelRow(rowIndex, new ArrayList<>(0));
+						data.setSheetIndex(sheetIndex);
+						data.setSheetName(sheetName);
+						data.setEmpty(true);
+						data.setLastRow(rowIndex == rowCount);
 						return data;
 					}
 
 					int cellCount = row.getLastCellNum();
 					//Illegal Capacity: -1
 					if(cellCount <= 0){
-						ExcelRow data = new ExcelRow(rowIndex, new ArrayList<String>(0));
-						data.setSheetIndex(sheetIndex); 
-						data.setSheetName(sheetName); 
-						data.setEmpty(true); 
-						data.setLastRow(rowIndex == rowCount); 
+						ExcelRow data = new ExcelRow(rowIndex, new ArrayList<>(0));
+						data.setSheetIndex(sheetIndex);
+						data.setSheetName(sheetName);
+						data.setEmpty(true);
+						data.setLastRow(rowIndex == rowCount);
 						return data;
 					}
 					List<String> list = new ArrayList<>(cellCount);
@@ -191,10 +185,10 @@ public class ExcelReader implements IExcelReader {
 						list.add(value);
 					}
 					ExcelRow rowData = new ExcelRow(rowIndex, list);
-					rowData.setSheetIndex(sheetIndex); 
-					rowData.setSheetName(sheetName); 
-					rowData.setEmpty(isEmpty); 
-					rowData.setLastRow(rowIndex == rowCount); 
+					rowData.setSheetIndex(sheetIndex);
+					rowData.setSheetName(sheetName);
+					rowData.setEmpty(isEmpty);
+					rowData.setLastRow(rowIndex == rowCount);
 					return rowData;
 				}
 			}
@@ -203,15 +197,14 @@ public class ExcelReader implements IExcelReader {
 
 	private void initSheet(){
 		rowIndex = 0;
-		sheetName = sheetNameGivenList.get(sheetIndexReading); 
+		sheetName = sheetNameGivenList.get(sheetIndexReading);
 		sheetIndex = sheetNameList.indexOf(sheetName) + 1;
 		while((sheet = sheetMap.get(sheetName)) == null){
 			sheetIndexReading++;
 			if(sheetIndexReading >= sheetNameGivenList.size()){
-				sheet = null;
 				return;
 			}else{
-				sheetName = sheetNameGivenList.get(sheetIndexReading); 
+				sheetName = sheetNameGivenList.get(sheetIndexReading);
 				sheetIndex = sheetNameList.indexOf(sheetName);
 			}
 		}
@@ -224,39 +217,38 @@ public class ExcelReader implements IExcelReader {
 		}
 
 		switch (cell.getCellType()) {
-		case NUMERIC:
-			double value = cell.getNumericCellValue();
-			if(DateUtil.isCellDateFormatted(cell)){
-				Date date = DateUtil.getJavaDate(value);
-				return String.valueOf(date.getTime());
-			}else{
-				return double2String(value);
-			}
-		case STRING:
-			return cell.getStringCellValue();
-		case BOOLEAN:
-			return String.valueOf(cell.getBooleanCellValue());
-		case FORMULA:
-			try {
-				return double2String(cell.getNumericCellValue());
-			} catch (IllegalStateException e) {
+			case NUMERIC:
+				double value = cell.getNumericCellValue();
+				if(DateUtil.isCellDateFormatted(cell)){
+					Date date = DateUtil.getJavaDate(value);
+					return String.valueOf(date.getTime());
+				}else{
+					return double2String(value);
+				}
+			case STRING:
+				return cell.getStringCellValue();
+			case BOOLEAN:
+				return String.valueOf(cell.getBooleanCellValue());
+			case FORMULA:
 				try {
-					return cell.getRichStringCellValue().toString();
-				} catch (IllegalStateException e2) {
-					LOG.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e2);
+					return double2String(cell.getNumericCellValue());
+				} catch (IllegalStateException e) {
+					try {
+						return cell.getRichStringCellValue().toString();
+					} catch (IllegalStateException e2) {
+						log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e2);
+						return "";
+					}
+				} catch (Exception e) {
+					log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e);
 					return "";
 				}
-			} catch (Exception e) {
-				LOG.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e);
+			case ERROR:
+				log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex);
 				return "";
-			}
-		case BLANK:
-			return "";
-		case ERROR:
-			LOG.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex);
-			return "";
-		default:
-			return "";
+			case BLANK:
+			default:
+				return "";
 		}
 	}
 
@@ -272,7 +264,7 @@ public class ExcelReader implements IExcelReader {
 			BigInteger xs = new BigInteger(doubleStr.substring(indexOfPoint + BigInteger.ONE.intValue(), indexOfE));
 			int pow = Integer.parseInt(doubleStr.substring(indexOfE + BigInteger.ONE.intValue()));
 			int xsLen = xs.toByteArray().length;
-			int scale = xsLen - pow > 0 ? xsLen - pow : 0;
+			int scale = Math.max(xsLen - pow, 0);
 			doubleStr = String.format("%." + scale + "f", doubleStr);
 		} else {
 			Pattern p = Pattern.compile(".0$");
@@ -285,8 +277,8 @@ public class ExcelReader implements IExcelReader {
 	}
 
 	@Override
-	public void close() throws IOException {
-		IOUtils.closeQuietly(workbook); 
+	public void close() {
+		IOUtils.closeQuietly(workbook);
 		IOUtils.closeQuietly(inputStream);
 	}
 }
