@@ -1,0 +1,8 @@
+syntax = "proto2";
+option java_package = "io.github.shanhm1991.echo.netty.serialize";  
+option java_outer_classname="ProtoBean";  
+
+message Bean{
+    required int32 age = 1;
+    required string name = 2;
+}

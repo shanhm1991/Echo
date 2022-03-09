@@ -1,14 +1,11 @@
 package io.github.shanhm1991.echo.algorithm.sort;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  *

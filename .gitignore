@@ -1,4 +1,18 @@
-*
 
-!pom.xml
-!README.md
+**/*.log
+**/log
+**/target
+
+**/.idea/
+**/*.iml
+
+**/.settings/
+**/.project
+**/.classpath
+
+
+
+
+
+
+
