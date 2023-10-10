@@ -1,4 +1,4 @@
-package io.github.shanhm1991.echo.poi.parse;
+package io.github.echo.poi.parse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import io.github.echo.poi.excel.ExcelRow;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,8 +19,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-import io.github.shanhm1991.echo.poi.excel.ExcelRow;
 
 /**
  * 根据配置规则按sheet解析excel
@@ -334,11 +333,7 @@ public abstract class ParseSheetTask<E> extends ParseExcelTask<Map<String, Objec
 	}
 
 	/**
-	 *
 	 * excel的sheet处理
-	 *
-	 * @author shanhm
-	 *
 	 */
 	public interface SheetHandler {
 
@@ -347,8 +342,7 @@ public abstract class ParseSheetTask<E> extends ParseExcelTask<Map<String, Objec
 		 * @param sheet sheet名称
 		 * @param sheetData sheet数据
 		 * @param batchTime 处理时间
-		 * @param excelData excel各个sheet的数据集，这地方用Map<String, Object>有点妥协，只是为了方便
-		 * @throws Exception
+		 * @param excelData excel各个sheet的数据集
 		 */
 		void handler(String sheet, List<Map<String, Object>> sheetData, long batchTime,
 					 Map<String, Collection<Map<String, Object>>> excelData) throws Exception;

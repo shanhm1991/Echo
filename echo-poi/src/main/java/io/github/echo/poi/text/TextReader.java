@@ -1,4 +1,4 @@
-package io.github.shanhm1991.echo.poi.text;
+package io.github.echo.poi.text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,47 +8,30 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import io.github.shanhm1991.echo.poi.text.IReader;
-import io.github.shanhm1991.echo.poi.text.TextRow;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 
+ *
  * @author shanhm1991@163.com
  *
  */
 public class TextReader implements IReader {
-	
+
 	private BufferedReader reader;
-	
+
 	private int rowIndex;
-	
+
 	private String regex;
-	
-	/**
-	 * @param regex regex
-	 * @param sourceUri sourceUri
-	 * @throws Exception Exception
-	 */
+
 	public TextReader(String sourceUri, String regex) throws Exception {
 		this(new FileInputStream(new File(sourceUri)), regex);
 	}
-	
-	/**
-	 * @param regex regex
-	 * @param file file
-	 * @throws Exception Exception
-	 */
+
 	public TextReader(File file, String regex) throws Exception {
 		this(new FileInputStream(file), regex);
 	}
-	
-	/**
-	 * @param regex regex
-	 * @param inputStream inputStream
-	 * @throws Exception Exception
-	 */
+
 	public TextReader(InputStream inputStream, String regex) throws Exception {
 		this.regex = regex;
 		reader = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
@@ -61,9 +44,9 @@ public class TextReader implements IReader {
 		if(line == null){
 			return null;
 		}
-		
+
 		boolean isEmpty = StringUtils.isBlank(line);
-		
+
 		if(regex == null){
 			TextRow row = new TextRow(rowIndex - 1, Arrays.asList(line));
 			row.setEmpty(isEmpty);
@@ -78,5 +61,4 @@ public class TextReader implements IReader {
 	public void close() throws IOException {
 		IOUtils.closeQuietly(reader);
 	}
-
 }

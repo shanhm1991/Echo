@@ -1,4 +1,4 @@
-package io.github.shanhm1991.echo.poi.excel;
+package io.github.echo.poi.excel;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -217,19 +217,22 @@ public class ExcelReader implements IExcelReader {
 		}
 
 		switch (cell.getCellType()) {
-			case NUMERIC:
+			case NUMERIC -> {
 				double value = cell.getNumericCellValue();
-				if(DateUtil.isCellDateFormatted(cell)){
+				if (DateUtil.isCellDateFormatted(cell)) {
 					Date date = DateUtil.getJavaDate(value);
 					return String.valueOf(date.getTime());
-				}else{
+				} else {
 					return double2String(value);
 				}
-			case STRING:
+			}
+			case STRING -> {
 				return cell.getStringCellValue();
-			case BOOLEAN:
+			}
+			case BOOLEAN -> {
 				return String.valueOf(cell.getBooleanCellValue());
-			case FORMULA:
+			}
+			case FORMULA -> {
 				try {
 					return double2String(cell.getNumericCellValue());
 				} catch (IllegalStateException e) {
@@ -243,12 +246,14 @@ public class ExcelReader implements IExcelReader {
 					log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e);
 					return "";
 				}
-			case ERROR:
+			}
+			case ERROR -> {
 				log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex);
 				return "";
-			case BLANK:
-			default:
+			}
+			default -> {
 				return "";
+			}
 		}
 	}
 

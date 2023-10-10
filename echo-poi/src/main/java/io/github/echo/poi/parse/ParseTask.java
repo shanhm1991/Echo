@@ -1,4 +1,4 @@
-package io.github.shanhm1991.echo.poi.parse;
+package io.github.echo.poi.parse;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -7,24 +7,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.fom.Task;
 
 /**
- * 
+ *
  * @author shanhm1991@163.com
  *
  * @param <V> 解析任务行数据解析结果类型
  * @param <E> 任务执行结果类型
  */
 public abstract class ParseTask<V, E> extends Task<E> {
-	
+
 	public static final float FILE_UNIT = 1024.0f;
-	
+
 	protected final DecimalFormat sizeFormat = new DecimalFormat("#.###");
-	
+
 	protected final String parseCache;
-	
+
 	protected final int batch;
-	
+
 	protected File progressLog;
-	
+
 	/**
 	 * @param sourceUri 资源uri
 	 * @param batch 入库时的批处理数
@@ -32,13 +32,13 @@ public abstract class ParseTask<V, E> extends Task<E> {
 	public ParseTask(String sourceUri, int batch){
 		super(sourceUri);
 		this.batch = batch;
-		if(StringUtils.isBlank(System.getProperty("cache.parse"))){ 
+		if(StringUtils.isBlank(System.getProperty("cache.parse"))){
 			parseCache = "cache/parse";
 		}else{
 			parseCache = System.getProperty("cache.parse");
 		}
 	}
-	
+
 	/**
 	 * 获取对应sourceUri的资源名称
 	 * @param sourceUri 资源uri
@@ -47,7 +47,7 @@ public abstract class ParseTask<V, E> extends Task<E> {
 	protected String getSourceName(String sourceUri) {
 		return new File(sourceUri).getName();
 	}
-	
+
 	/**
 	 * 获取对应sourceUri的资源字节数
 	 * @param sourceUri 资源uri
@@ -56,7 +56,7 @@ public abstract class ParseTask<V, E> extends Task<E> {
 	protected long getSourceSize(String sourceUri) {
 		return new File(sourceUri).length();
 	}
-	
+
 	/**
 	 * 根据sourceUri删除文件
 	 * @param sourceUri 资源uri
@@ -65,7 +65,7 @@ public abstract class ParseTask<V, E> extends Task<E> {
 	protected boolean deleteSource(String sourceUri) {
 		return new File(sourceUri).delete();
 	}
-	
+
 	/**
 	 * 删除处理进度纪录日志
 	 * @return 是否删除成功
@@ -77,7 +77,7 @@ public abstract class ParseTask<V, E> extends Task<E> {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 文件大小格式化
 	 * @param size size
@@ -86,7 +86,7 @@ public abstract class ParseTask<V, E> extends Task<E> {
 	protected final String formatSize(long size) {
 		return sizeFormat.format(size / FILE_UNIT);
 	}
-	
+
 	/**
 	 * 中断检测
 	 * @throws InterruptedException InterruptedException
@@ -96,5 +96,5 @@ public abstract class ParseTask<V, E> extends Task<E> {
 			throw new InterruptedException("interrupted when batchProcessLineData");
 		}
 	}
-	
+
 }

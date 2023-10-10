@@ -1,4 +1,4 @@
-package io.github.shanhm1991.echo.poi.excel;
+package io.github.echo.poi.excel;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -7,6 +7,7 @@ import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.record.Record;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -39,7 +40,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * 
+ *
  * @author shanhm1991@163.com
  *
  */
@@ -52,64 +53,64 @@ public class ExcelEventReader implements IExcelReader {
 
 	private ExcelXSSFHandler xssfHandler;
 
-	private POIFSFileSystem pfs;  
+	private POIFSFileSystem pfs;
 
 	private ExcelHSSFHandler hssfHandler;
 
 	private ExcelSheetFilter sheetFilter;
 
-	public ExcelEventReader(String sourceUri) throws IOException, OpenXML4JException, SAXException, DocumentException {  
+	public ExcelEventReader(String sourceUri) throws IOException, OpenXML4JException, SAXException, DocumentException {
 		this(new File(sourceUri));
 	}
 
-	public ExcelEventReader(File file) throws IOException, OpenXML4JException, SAXException, DocumentException { 
+	public ExcelEventReader(File file) throws IOException, OpenXML4JException, SAXException, DocumentException {
 		if(!file.exists()) {
 			Resource resource = new ClassPathResource(file.getPath());
 			file = resource.getFile();
 		}
-		
+
 		String name = file.getName();
 		int index = name.lastIndexOf('.');
 		if(index == -1){
 			throw new UnsupportedOperationException("Excel file name must end with .xls or .xlsx");
 		}
-		
+
 		this.type = name.substring(index + 1);
 		if(EXCEL_XLS.equalsIgnoreCase(type)){
-			pfs = new POIFSFileSystem(new FileInputStream(file));  
+			pfs = new POIFSFileSystem(new FileInputStream(file));
 			initHssf();
 		}else if(EXCEL_XLSX.equalsIgnoreCase(type)){
-			pkg = OPCPackage.open(file); 
+			pkg = OPCPackage.open(file);
 			initXssf();
 		}else{
 			throw new UnsupportedOperationException("Excel file name must end with .xls or .xlsx");
 		}
 	}
 
-	public ExcelEventReader(InputStream inputStream, String type) throws IOException, OpenXML4JException, SAXException, DocumentException { 
+	public ExcelEventReader(InputStream inputStream, String type) throws IOException, OpenXML4JException, SAXException, DocumentException {
 		this.type = type;
 		if(EXCEL_XLS.equalsIgnoreCase(type)){
-			pfs = new POIFSFileSystem(inputStream);  
+			pfs = new POIFSFileSystem(inputStream);
 			initHssf();
 		}else if(EXCEL_XLSX.equalsIgnoreCase(type)){
-			pkg = OPCPackage.open(inputStream); 
+			pkg = OPCPackage.open(inputStream);
 			initXssf();
 		}else{
 			throw new UnsupportedOperationException("Excel file name must end with .xls or .xlsx");
 		}
-	} 
+	}
 
 	private void initHssf() throws IOException {
 		hssfHandler = new ExcelHSSFHandler();
 		HSSFRequest hssfRequest = new HSSFRequest();
 		hssfRequest.addListenerForAllRecords(hssfHandler);
 
-		HSSFEventFactory factory = new HSSFEventFactory(); 
+		HSSFEventFactory factory = new HSSFEventFactory();
 		InputStream bookStream = pfs.createDocumentInputStream("Workbook");
 		factory.processEvents(hssfRequest, bookStream);
 	}
 
-	private void initXssf() throws IOException, OpenXML4JException, SAXException, DocumentException {  
+	private void initXssf() throws IOException, OpenXML4JException, SAXException, DocumentException {
 		XSSFReader reader = new XSSFReader(pkg);
 		XMLReader parser = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
 		xssfHandler = new ExcelXSSFHandler(reader, parser);
@@ -117,7 +118,7 @@ public class ExcelEventReader implements IExcelReader {
 	}
 
 	@Override
-	public List<ExcelRow> readSheet() throws Exception { 
+	public List<ExcelRow> readSheet() throws Exception {
 		if(EXCEL_XLS.equalsIgnoreCase(type)){
 			return hssfHandler.readSheet();
 		}else if(EXCEL_XLSX.equalsIgnoreCase(type)){
@@ -181,7 +182,7 @@ public class ExcelEventReader implements IExcelReader {
 
 		private CellType cellType;
 
-		private String lastContents = ""; 
+		private String lastContents = "";
 
 		private List<String> columnList;
 
@@ -195,7 +196,7 @@ public class ExcelEventReader implements IExcelReader {
 
 		private short formatIndex;
 
-		public ExcelXSSFHandler(XSSFReader xssfReader, XMLReader xmlReader) throws InvalidFormatException, IOException, DocumentException {  
+		public ExcelXSSFHandler(XSSFReader xssfReader, XMLReader xmlReader) throws InvalidFormatException, IOException, DocumentException {
 			this.xmlReader = xmlReader;
 			this.xssfReader = xssfReader;
 			this.stringTable = xssfReader.getSharedStringsTable();
@@ -214,10 +215,10 @@ public class ExcelEventReader implements IExcelReader {
 					String name = sheet.attributeValue("name");
 					String rid = sheet.attributeValue("id");
 					sheetNameList.add(name);
-					sheetNameRidMap.put(name, rid); 
+					sheetNameRidMap.put(name, rid);
 				}
 			}finally{
-				IOUtils.closeQuietly(bookStream); 
+				IOUtils.closeQuietly(bookStream);
 			}
 			//cann't let the customer code to directly modify sheetNameList
 			sheetNameGivenList.addAll(sheetNameList);
@@ -229,20 +230,20 @@ public class ExcelEventReader implements IExcelReader {
 				if(dimension.contains(":")){
 					dimension = dimension.split(":")[1];
 				}
-				rowMax = getRowIndex(dimension);  
+				rowMax = getRowIndex(dimension);
 				cellMax = getCellIndex(dimension);
 				sheetData = new ArrayList<>(rowMax);
 			}
 
-			if (qName.equals("row")) { 
+			if (qName.equals("row")) {
 				cellIndex = 0;
 				int currentRowIndex = Integer.parseInt(attributes.getValue("r")) - 1;
 				while(rowIndex < currentRowIndex){
 					ExcelRow data = new ExcelRow(rowIndex + 1, new ArrayList<>(0));
-					data.setSheetIndex(sheetIndex); 
-					data.setSheetName(sheetName); 
-					data.setEmpty(true); 
-					data.setLastRow(rowIndex == rowMax - 1); 
+					data.setSheetIndex(sheetIndex);
+					data.setSheetName(sheetName);
+					data.setEmpty(true);
+					data.setLastRow(rowIndex == rowMax - 1);
 					sheetData.add(data);
 					rowIndex++;
 				}
@@ -261,22 +262,15 @@ public class ExcelEventReader implements IExcelReader {
 				if(type == null){
 					cellType = CellType.BLANK;
 				}else{
-					switch(type){
-					case "b":
-						cellType = CellType.BOOLEAN; break;
-					case "e":
-						cellType = CellType.ERROR; break;
-					case "inlineStr":
-						//just use CellType._NONE to represent inlineStr
-						cellType = CellType._NONE; break; 
-					case "s":
-						cellType = CellType.STRING; break;
-					case "str":
-						cellType = CellType.FORMULA; break;
-					default:
-						cellType = CellType.BLANK;
+					switch (type) {
+						case "b" -> cellType = CellType.BOOLEAN;
+						case "e" -> cellType = CellType.ERROR;
+						case "inlineStr" -> cellType = CellType._NONE;
+						case "s" -> cellType = CellType.STRING;
+						case "str" -> cellType = CellType.FORMULA;
+						default -> cellType = CellType.BLANK;
 					}
-				} 
+				}
 
 				String cellStyle = attributes.getValue("s");
 				if (cellStyle != null) {
@@ -297,27 +291,22 @@ public class ExcelEventReader implements IExcelReader {
 			 * and the date type will be first converted to milliseconds.
 			 */
 			if (qName.equals("v")) {
-				switch (cellType){
-				case STRING:
-					int sharedIndex = Integer.parseInt(lastContents);
-					lastContents = stringTable.getItemAt(sharedIndex).toString();
-					break;
-				case _NONE:
-					lastContents = new XSSFRichTextString(lastContents).toString();
-					break;
-				case FORMULA:
-					try {
-						lastContents = ExcelReader.formatDouble(lastContents);
-					}  catch (Exception e) {
-						lastContents = new XSSFRichTextString(lastContents).toString();
-						log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e);
+				switch (cellType) {
+					case STRING -> {
+						int sharedIndex = Integer.parseInt(lastContents);
+						lastContents = stringTable.getItemAt(sharedIndex).toString();
 					}
-					break;
-				case BOOLEAN:
-				case ERROR:
-				default:
-
-				} 
+					case _NONE -> lastContents = new XSSFRichTextString(lastContents).toString();
+					case FORMULA -> {
+						try {
+							lastContents = ExcelReader.formatDouble(lastContents);
+						} catch (Exception e) {
+							lastContents = new XSSFRichTextString(lastContents).toString();
+							log.error("Excel format error: sheet=" + sheetName + ",row=" + rowIndex + ",column=" + cellIndex, e);
+						}
+					}
+					default -> {}
+				}
 
 				//如果是常规和文本，则什么也不做，否则看是否是日期，如果不是日期再尝试转数值
 				if (formatString != null) {
@@ -351,10 +340,10 @@ public class ExcelEventReader implements IExcelReader {
 
 			if (qName.equals("row")) {
 				ExcelRow data = new ExcelRow(rowIndex + 1, columnList);
-				data.setSheetIndex(sheetIndex); 
-				data.setSheetName(sheetName); 
-				data.setEmpty(checkEmpty()); 
-				data.setLastRow(rowIndex == rowMax - 1); 
+				data.setSheetIndex(sheetIndex);
+				data.setSheetName(sheetName);
+				data.setEmpty(checkEmpty());
+				data.setLastRow(rowIndex == rowMax - 1);
 				sheetData.add(data);
 				rowIndex++;
 			}
@@ -402,7 +391,7 @@ public class ExcelEventReader implements IExcelReader {
 			int cellIndex = 0;
 			int indexLen = cellstr.length();
 			int bitIndex = 0;
-			for(int i = indexLen - 1; i >= 0; i--){ 
+			for(int i = indexLen - 1; i >= 0; i--){
 				int base = 1;
 				int c = cellstr.charAt(i) - 65;
 				if(bitIndex > 0){
@@ -417,7 +406,7 @@ public class ExcelEventReader implements IExcelReader {
 			return cellIndex;
 		}
 
-		public List<ExcelRow> readSheet() throws Exception{ 
+		public List<ExcelRow> readSheet() throws Exception{
 			while(true){
 				List<ExcelRow> list = new ArrayList<>();
 				if(isEnd){
@@ -503,7 +492,7 @@ public class ExcelEventReader implements IExcelReader {
 
 		private int sheetIndex = 0;
 
-		private String sheetName;  
+		private String sheetName;
 
 		private int rowMax;
 
@@ -519,59 +508,57 @@ public class ExcelEventReader implements IExcelReader {
 
 		@Override
 		public void processRecord(Record record) {
-			switch (record.getSid()) {  
-			case SSTRecord.sid:
-				stringTable = (SSTRecord)record;
-				break;
-			case BoundSheetRecord.sid:
-				BoundSheetRecord boundSheet = (BoundSheetRecord)record;
-				sheetNameList.add(boundSheet.getSheetname());
-				break;
-			case BOFRecord.sid:  
-				BOFRecord bof = (BOFRecord)record;
-				if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
-					sheetName = sheetNameList.get(sheetIndex);
-					rowIndex = 0;
-					sheetIndex++;
+			switch (record.getSid()) {
+				case SSTRecord.sid -> stringTable = (SSTRecord) record;
+				case BoundSheetRecord.sid -> {
+					BoundSheetRecord boundSheet = (BoundSheetRecord) record;
+					sheetNameList.add(boundSheet.getSheetname());
 				}
-				break;  
-			case DimensionsRecord.sid:
-				DimensionsRecord dimensions = (DimensionsRecord)record;
-				rowMax = dimensions.getLastRow();
-				cellMax = dimensions.getLastCol();
-				sheetData = new ArrayList<>(rowMax);
-				rowData = new ExcelRow(rowIndex + 1, new ArrayList<>(cellMax));
-				rowData.setSheetIndex(sheetIndex);
-				rowData.setSheetName(sheetName); 
-				rowData.setLastRow(rowIndex == rowMax - 1); 
-				bookData.put(sheetName, sheetData);
-				break;
-			case NumberRecord.sid:
-				NumberRecord number = (NumberRecord) record;
-				prepareRowData(number.getRow());
-				fillRowData(number.getColumn(), ExcelReader.double2String(number.getValue())); 
-				break;
-			case LabelSSTRecord.sid:
-				LabelSSTRecord labelSST = (LabelSSTRecord)record;
-				prepareRowData(labelSST.getRow());
-				fillRowData(labelSST.getColumn(), stringTable.getString(labelSST.getSSTIndex()).toString()); 
-				break;
-			case FormulaRecord.sid:
-				FormulaRecord formula = (FormulaRecord)record;
-				prepareRowData(formula.getRow());
-				fillRowData(formula.getColumn(), ExcelReader.double2String(formula.getValue())); 
-				break;
-			case BlankRecord.sid:
-				BlankRecord blank = (BlankRecord)record;
-				prepareRowData(blank.getRow());
-				fillRowData(blank.getColumn(), ""); 
-				break;
-			case BoolErrRecord.sid:
-				BoolErrRecord bool = (BoolErrRecord)record;
-				prepareRowData(bool.getRow());
-				fillRowData(bool.getColumn(), String.valueOf(bool.getBooleanValue())); 
-				break;
-			}  
+				case BOFRecord.sid -> {
+					BOFRecord bof = (BOFRecord) record;
+					if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
+						sheetName = sheetNameList.get(sheetIndex);
+						rowIndex = 0;
+						sheetIndex++;
+					}
+				}
+				case DimensionsRecord.sid -> {
+					DimensionsRecord dimensions = (DimensionsRecord) record;
+					rowMax = dimensions.getLastRow();
+					cellMax = dimensions.getLastCol();
+					sheetData = new ArrayList<>(rowMax);
+					rowData = new ExcelRow(rowIndex + 1, new ArrayList<>(cellMax));
+					rowData.setSheetIndex(sheetIndex);
+					rowData.setSheetName(sheetName);
+					rowData.setLastRow(rowIndex == rowMax - 1);
+					bookData.put(sheetName, sheetData);
+				}
+				case NumberRecord.sid -> {
+					NumberRecord number = (NumberRecord) record;
+					prepareRowData(number.getRow());
+					fillRowData(number.getColumn(), ExcelReader.double2String(number.getValue()));
+				}
+				case LabelSSTRecord.sid -> {
+					LabelSSTRecord labelSST = (LabelSSTRecord) record;
+					prepareRowData(labelSST.getRow());
+					fillRowData(labelSST.getColumn(), stringTable.getString(labelSST.getSSTIndex()).toString());
+				}
+				case FormulaRecord.sid -> {
+					FormulaRecord formula = (FormulaRecord) record;
+					prepareRowData(formula.getRow());
+					fillRowData(formula.getColumn(), ExcelReader.double2String(formula.getValue()));
+				}
+				case BlankRecord.sid -> {
+					BlankRecord blank = (BlankRecord) record;
+					prepareRowData(blank.getRow());
+					fillRowData(blank.getColumn(), "");
+				}
+				case BoolErrRecord.sid -> {
+					BoolErrRecord bool = (BoolErrRecord) record;
+					prepareRowData(bool.getRow());
+					fillRowData(bool.getColumn(), String.valueOf(bool.getBooleanValue()));
+				}
+			}
 		}
 
 		private void fillRowData(short index, String value){
@@ -584,24 +571,24 @@ public class ExcelEventReader implements IExcelReader {
 
 		private void prepareRowData(int rowNum){
 			if(rowNum > rowIndex){
-				rowData.setEmpty(false); 
+				rowData.setEmpty(false);
 				sheetData.add(rowData);
 				rowIndex++;
-				fillEmptyRow(rowNum); 
+				fillEmptyRow(rowNum);
 				rowData = new ExcelRow(rowIndex + 1, new ArrayList<>(cellMax));
 				rowData.setSheetIndex(sheetIndex);
-				rowData.setSheetName(sheetName); 
-				rowData.setLastRow(rowIndex == rowMax - 1); 
+				rowData.setSheetName(sheetName);
+				rowData.setLastRow(rowIndex == rowMax - 1);
 			}
 		}
 
 		private void fillEmptyRow(int rowNum){
 			while(rowNum > rowIndex){
 				rowData = new ExcelRow(rowIndex + 1, new ArrayList<>(0));
-				rowData.setSheetIndex(sheetIndex); 
-				rowData.setSheetName(sheetName); 
-				rowData.setEmpty(true); 
-				rowData.setLastRow(rowIndex == rowMax - 1); 
+				rowData.setSheetIndex(sheetIndex);
+				rowData.setSheetName(sheetName);
+				rowData.setEmpty(true);
+				rowData.setLastRow(rowIndex == rowMax - 1);
 				sheetData.add(rowData);
 				rowIndex++;
 			}
@@ -618,7 +605,7 @@ public class ExcelEventReader implements IExcelReader {
 
 		private boolean isEnd = false;
 
-		public List<ExcelRow> readSheet() { 
+		public List<ExcelRow> readSheet() {
 			if(!inited){
 				init();
 			}

@@ -1,19 +1,19 @@
-package io.github.shanhm1991.echo.poi.excel;
+package io.github.echo.poi.excel;
 
-import io.github.shanhm1991.echo.poi.text.IRow;
+import io.github.echo.poi.text.IRow;
 
 import java.util.List;
 
 /**
- * 
+ *
  * @author shanhm1991@163.com
  *
  */
 public class ExcelRow implements IRow {
 
-	private int rowIndex;
+	private final int rowIndex;
 
-	private List<String> columnList;
+	private final List<String> columnList;
 
 	private int sheetIndex;
 
@@ -43,10 +43,9 @@ public class ExcelRow implements IRow {
 	public List<String> getColumnList() {
 		return columnList;
 	}
-	
+
 	/**
 	 * 是否最后一行
-	 * @return
 	 */
 	public boolean isLastRow() {
 		return isLastRow;
@@ -54,7 +53,6 @@ public class ExcelRow implements IRow {
 
 	/**
 	 * 获取Excel的sheet索引
-	 * @return
 	 */
 	public int getSheetIndex() {
 		return sheetIndex;
@@ -62,20 +60,19 @@ public class ExcelRow implements IRow {
 
 	/**
 	 * 获取Excel的sheet名称
-	 * @return
 	 */
 	public String getSheetName() {
 		return sheetName;
 	}
-	
+
 	void setEmpty(boolean isEmpty) {
 		this.isEmpty = isEmpty;
 	}
-	
+
 	void setLastRow(boolean isLastRow) {
 		this.isLastRow = isLastRow;
 	}
-	
+
 	void setSheetIndex(int sheetIndex) {
 		this.sheetIndex = sheetIndex;
 	}
